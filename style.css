@@ -1,0 +1,13 @@
+body {
+    background-image: url("http://pre15.deviantart.net/86c2/th/pre/f/2010/248/1/1/starscape_wip_1_by_vaniyz-d2y4g9y.png");
+}
+
+p,label,hr,h1,h2,h3,h4,h5,h6,td {
+    color: white;
+}
+
+button, submit, input[type="text"], textarea, select, option {
+    background-color: black;
+    color: white;
+}
+
