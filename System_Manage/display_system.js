@@ -1,4 +1,4 @@
-function display() {
+function display(eg) {
     var sys_id = $("#system_list").val();
     if (!has_star(sys_id)) {
         $("#star_submit").click(function () {
@@ -12,7 +12,7 @@ function display() {
                 star: star
             }, function () {
                 $("#status").hide();
-                display_system(sys_id);
+                display_system(sys_id, eg);
             });
 
         });
@@ -21,11 +21,11 @@ function display() {
         });
     } else {
         //$("#status").show();
-        display_system(sys_id);
+        display_system(sys_id, eg);
     }
 }
 
-function display_system(sys_id) {
+function display_system(sys_id, eg) {
     $("#system").hide();
     $("#status").show();
     $("#entities").click(function () {
@@ -58,7 +58,7 @@ function display_system(sys_id) {
                     target: values[2],
                     parameters: { "c_id": values[0] },
                     anchor: "AutoDefault",
-                    connector: ["Bezier", {curviness:30}],
+                    connector: ["Bezier", { curviness: 30}],
                     endpoint: "Blank",
                     paintStyle: { dashstyle: dashstyle, lineWidth: 5, strokeStyle: "white" }
                 });
@@ -80,7 +80,7 @@ function display_system(sys_id) {
                     }
                 });
             }
-
+            display_stats(eg);
         });
         $("#status").hide();
         $("#system").show();
@@ -98,4 +98,17 @@ function has_star(sys_id) {
         return true;
     } 
     return false;
+}
+
+function display_stats(eg) {
+    var sys_id = $("#system_list").val();
+
+    $.get("/DB_Access/system_detail/graph_info.php", {
+        sys_id: sys_id
+    }, function (data, status) {
+        build_graph(eg, data);
+        append_sources(eg);
+        //creates the distance and fuel stats table.
+        generate(eg);
+    });
 }

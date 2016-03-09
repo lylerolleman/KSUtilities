@@ -1,10 +1,11 @@
 <?php
-$servername = "localhost";
+$servername = "127.0.0.1";
 $username = "root";
 $password = "dev";
 $dbName = "KSUtilities";
 $sys_id = $_GET["sys_id"];
 // Create connection
+
 $conn = mysqli_connect($servername, $username, $password, $dbName);
 
 // Check connection

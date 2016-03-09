@@ -6,6 +6,14 @@ p,label,hr,h1,h2,h3,h4,h5,h6,td {
     color: white;
 }
 
+tr:hover {
+    background-color: #808080;
+}
+
+table {
+    border-collapse: collapse;
+}
+
 button, submit, input[type="text"], textarea, select, option {
     background-color: black;
     color: white;

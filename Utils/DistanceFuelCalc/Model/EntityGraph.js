@@ -62,7 +62,8 @@ function EntityGraph() {
                 fuelcosts.push(e1.connections[i].fuelcost + leastFuelCost_r(e1.connections[i].dest, e2));
             }
         }
-        e1.visted = false;
+        e1.visited = false;
+        //console.log(e1.name + " " + e2.name + " " + fuelcosts);
         return Math.min.apply(Math, fuelcosts);
     }
 
@@ -101,6 +102,7 @@ function EntityGraph() {
             }
         }
         e1.visited = false;
+        //console.log(e1.name + " " + e2.name + " " + transitcosts);
         return Math.min.apply(Math, transitcosts);
     }
 }

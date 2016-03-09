@@ -1,13 +1,18 @@
-function delete_entity(p_id) {
-    jsPlumb.remove($("#" + p_id));
+function delete_entity(p_id, eg) {
+    try {
+        jsPlumb.remove($("#" + p_id));
+    } catch (err) {
+        console.log("jsPlumb is not happy: " + err);
+    }
+    $("#" + p_id).remove();
     var sys_id = $("#system_list").val();
     $.post("/DB_Access/system_updates/entity_delete.php", {
         p_id: p_id,
         sys_id: sys_id
-    });
+    }, function() {display_stats(eg);});
 }
 
-function delete_connection(connection) {
+function delete_connection(connection, eg) {
     var c_id = connection.getParameter("c_id");
     try {
         jsPlumb.detach(connection);
@@ -17,10 +22,10 @@ function delete_connection(connection) {
     
     $.post("/DB_Access/system_updates/connector_delete.php", {
         c_id: c_id
-    });
+    }, function() {display_stats(eg);});
 }
 
-function create_new_connection(p1, p2, type) {
+function create_new_connection(p1, p2, type, eg) {
     switch (type) {
         case "solid":
             type = "IP";
@@ -35,7 +40,7 @@ function create_new_connection(p1, p2, type) {
         p2: p2,
         type: type,
         sys_id: sys_id
-    }, function(c_id) {
+    }, function (c_id) {
         var dashstyle = "4 2";
         if (type === "IP") {
             dashstyle = "1 0";
@@ -45,14 +50,15 @@ function create_new_connection(p1, p2, type) {
             target: p2,
             parameters: { "c_id": c_id },
             anchor: "AutoDefault",
-            connector: ["Bezier", {curviness:30}],
+            connector: ["Bezier", { curviness: 30}],
             endpoint: "Blank",
             paintStyle: { dashstyle: dashstyle, lineWidth: 5, strokeStyle: "white" }
         });
+        display_stats(eg);
     });
 }
 
-function insert_planet(e_id, x, y, sys_id) {
+function insert_planet(e_id, x, y, sys_id, eg) {
     $.post("/DB_Access/system_updates/entity_insert.php", {
         e_id: e_id,
         x: x,
@@ -77,5 +83,6 @@ function insert_planet(e_id, x, y, sys_id) {
                 });
             }
         });
+        display_stats(eg);
     });
 }

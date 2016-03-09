@@ -35,6 +35,10 @@
                 border-style: solid;
                 border-width: 1px;
             }
+            #results {
+                width: 80%;
+                margin-left: 10%;
+            }
             .entity_img {
                 margin: auto;
                 width: 60%;
@@ -45,6 +49,12 @@
             .entity_label {
                 text-align: center;
             }
+            td {
+                text-align: center;
+            }
+            .names {
+                text-align: left;
+            }
         </style>
         <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
         <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
@@ -52,6 +62,11 @@
         <script src="display_system.js"></script>
         <script src="modify_system.js"></script>
         <script src="context_menu.js"></script>
+        <script src="/Utils/DistanceFuelCalc/Calculate.js"></script>
+        <script src="/Utils/DistanceFuelCalc/Model/Connection.js"></script>
+        <script src="/Utils/DistanceFuelCalc/Model/Entity.js"></script>
+        <script src="/Utils/DistanceFuelCalc/Model/Globals.js"></script>
+        <script src="/Utils/DistanceFuelCalc/Model/EntityGraph.js"></script>
         <script>
             //Prompts the user to enter a name for the new system and posts it to server
             function name_prompt() {
@@ -71,8 +86,19 @@
                     });
                 }
             }
-            
+
             $(document).ready(function () {
+                //Set up stat reporting stuff
+                var eg = new EntityGraph();
+                $(document).on("click", "#generate", function () { generate(eg); });
+                $(document).on("change", "#source_select", function () {
+                    var source = $("#source_select").val();
+                    $.post("/Session_Manage/set_session_var.php", {
+                        key: "source",
+                        value: source
+                    });
+                });
+
                 //Hide components until loaded
                 $("#star_div").hide();
                 $("#status").hide();
@@ -92,7 +118,7 @@
                     }, function (data, status) {
                         var p_ids = data.split(",");
                         for (var i = 0; i < p_ids.length - 1; i++) {
-                            delete_entity(p_ids[i]);
+                            delete_entity(p_ids[i], eg);
                         }
                     });
                     $("#menu_" + id).remove();
@@ -105,10 +131,10 @@
                 $("#system_list").load("/DB_Access/system_detail/system_list.php", function () {
                     $("#system_div").show();
                     if ($("#system_list option").length != 0) {
-                        display();
+                        display(eg);
                     } else {
                         name_prompt();
-                        display();
+                        display(eg);
                     }
                 });
                 //Fires when the new system button is pressed
@@ -121,16 +147,16 @@
 
                 //fires when user selects a new system and redraws the display
                 $("#system_list").on("change", function () {
-                    display();
+                    display(eg);
                 });
 
                 //delete entity
                 $(document).on("dblclick", ".system_item", function () {
-                    delete_entity($(this).attr("id"));
+                    delete_entity($(this).attr("id"), eg);
                 });
                 //Delete connector
                 jsPlumb.bind("dblclick", function (connection, originalEvent) {
-                    delete_connection(connection);
+                    delete_connection(connection, eg);
                 });
 
                 //select image from entity list to place in system canvas
@@ -138,7 +164,7 @@
                     var temp = $(this).attr("id").split("_");
                     planet_selected(temp[1]);
                     $(document).on("click.systemclick", "#system", function (e) {
-                        insert_planet(temp[1], e.pageX, e.pageY, $("#system_list").val());
+                        insert_planet(temp[1], e.pageX, e.pageY, $("#system_list").val(), eg);
                         clear_menu();
                         $(document).off("click.systemclick");
                     });
@@ -156,7 +182,7 @@
                         $(document).off("click.source");
                         $(document).on("click.dest", ".system_item", function () {
                             var p2 = $(this).attr("id");
-                            create_new_connection(p1, p2, sel);
+                            create_new_connection(p1, p2, sel, eg);
                             $(document).off("click.dest");
                             $(document).on("click.system_item", ".system_item", function () {
                                 clear_menu();
@@ -168,12 +194,12 @@
                                     $("#" + PID.p_id + " img").attr("width", size);
                                     $("#" + PID.p_id + " img").attr("height", size);
                                     $(document).off("#resize_button");
-                                        clear_menu();
-                                        $.post("/DB_Access/system_updates/entity_resize.php", {
-                                            p_id: PID.p_id,
-                                            size: size
-                                        });
+                                    clear_menu();
+                                    $.post("/DB_Access/system_updates/entity_resize.php", {
+                                        p_id: PID.p_id,
+                                        size: size
                                     });
+                                });
                             });
                             clear_menu();
                         });
@@ -198,6 +224,7 @@
                         });
                     });
                 });
+
             });
         </script>
     </head>
@@ -226,5 +253,19 @@
             <div id="entity_menu"></div>
         </div>
         <div id="system"></div>
+        <div id="results">
+        <div id="source"><select id="source_select"></select><button id="generate">Generate</button></div><br>
+        <table id="stats">
+            <tr class="head">
+                <td class="names">Destination</td>
+                <td>Least Distance</td>
+                <td>Turns at speed 3</td>
+                <td>Turns at speed 4</td>
+                <td>Turns at speed 5</td>
+                <td>Tank Cost</td>
+                <td>Fuel Cost</td>
+            </tr>
+        </table>
+        </div>
     </body>
 </html>
