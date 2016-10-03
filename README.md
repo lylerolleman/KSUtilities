@@ -1,7 +1,9 @@
 # KSUtilities
 Some helpful utilities to aid in the production of the Kesslar Syndrome Board Game
 
-This project is currently a WIP. Unimplemented components have been disabled
+This project is currently a WIP. Unimplemented components have been disabled.
+**Note, as the project has progressed past the stage requiring rapid and broad changes, 
+KSUtilities has been shelved indefinitely.
 
 In the most recent version, all the primary functional components have been rolled into one page
 
